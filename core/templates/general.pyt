@@ -1,4 +1,8 @@
 import wave, struct, math, random
+from perlin_noise import PerlinNoise
+noise = PerlinNoise()
+
+# Ajout possible de {#STARTDATA"} pour noise etc 
 
 sampleRate = {#SAMPLERATE#} # hertz
 
@@ -16,7 +20,7 @@ notes = [{#NOTES#}]
 # 32767
 
 max_len = max([x[2]+x[1] for x in notes])
-if max_len > 60: max_len = 60
+if max_len > {#MAX_LEN#}: max_len = 60
 
 out = [0 for x in range(max_len*sampleRate)]
 

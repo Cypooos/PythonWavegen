@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>861</width>
+    <width>774</width>
     <height>641</height>
    </rect>
   </property>
@@ -27,28 +27,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QComboBox" name="comboBox">
-          <item>
-           <property name="text">
-            <string>basse</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>haut</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>fond1</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>fond2</string>
-           </property>
-          </item>
-         </widget>
+         <widget class="QComboBox" name="ChooseIns"/>
         </item>
         <item>
          <widget class="QLabel" name="label">
@@ -58,12 +37,19 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit"/>
+         <widget class="QLineEdit" name="RenameTxt"/>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="RenameBtn">
           <property name="text">
            <string>&amp;Rename</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="DeleteBtn">
+          <property name="text">
+           <string>Delete</string>
           </property>
          </widget>
         </item>
@@ -95,7 +81,7 @@
         <item>
          <layout class="QGridLayout" name="gridLayout">
           <item row="2" column="1">
-           <widget class="QLineEdit" name="lineEdit_4"/>
+           <widget class="QLineEdit" name="MaxLength"/>
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="label_7">
@@ -126,7 +112,7 @@
            </widget>
           </item>
           <item row="3" column="1">
-           <widget class="QLineEdit" name="lineEdit_5">
+           <widget class="QLineEdit" name="MaxVolume">
             <property name="text">
              <string>32767</string>
             </property>
@@ -136,10 +122,10 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="lineEdit_2"/>
+           <widget class="QLineEdit" name="OutFileName"/>
           </item>
           <item row="1" column="1">
-           <widget class="QLineEdit" name="lineEdit_3"/>
+           <widget class="QLineEdit" name="SampleRate"/>
           </item>
          </layout>
         </item>
@@ -175,7 +161,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>861</width>
+     <width>774</width>
      <height>21</height>
     </rect>
    </property>
@@ -208,6 +194,7 @@
      <string>Instruments</string>
     </property>
     <addaction name="actionNew_instrument"/>
+    <addaction name="actionDelete_Instrument"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuCompiler"/>
@@ -229,9 +216,11 @@
    <addaction name="actionSave"/>
    <addaction name="separator"/>
    <addaction name="actionNew_instrument"/>
+   <addaction name="actionDelete_Instrument"/>
    <addaction name="separator"/>
    <addaction name="actionCompile_And_Run"/>
    <addaction name="action_Stop"/>
+   <addaction name="separator"/>
   </widget>
   <action name="actionNew">
    <property name="icon">
@@ -357,7 +346,7 @@
      <normaloff>ressources/instrument.png</normaloff>ressources/instrument.png</iconset>
    </property>
    <property name="text">
-    <string>New instrument</string>
+    <string>New Instrument</string>
    </property>
    <property name="toolTip">
     <string>Créé un nouvel instrument</string>
@@ -373,6 +362,18 @@
    </property>
    <property name="text">
     <string>&amp;Stop</string>
+   </property>
+  </action>
+  <action name="actionDelete_Instrument">
+   <property name="icon">
+    <iconset>
+     <normaloff>ressources/eraser.png</normaloff>ressources/eraser.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete Instrument</string>
+   </property>
+   <property name="toolTip">
+    <string>Suprimme un instrument</string>
    </property>
   </action>
  </widget>

@@ -1,4 +1,6 @@
 import wave, struct, math, random
+from perlin_noise import PerlinNoise
+noise = PerlinNoise()
 
 sampleRate = 44100 # hertz
 
@@ -11,10 +13,13 @@ obj.setframerate(sampleRate)
 
 
 def INS_1(i,frequency):
-  return math.sin(frequency*math.pi*2*i)
+  return math.sin(frequency*math.pi*2*i) * (2-i)/2
+
+def INS_2(i,frequency):
+  return noise(i*frequency)
 
 
-notes = [(440,0,5,INS_1,0.5),(880,0,5,INS_1,0.5)]
+notes = [(880,0,10,INS_2,1)]
 # 32767
 
 max_len = max([x[2]+x[1] for x in notes])
@@ -25,7 +30,7 @@ out = [0 for x in range(max_len*sampleRate)]
 for i,(freq,start,duration,ins,volume) in enumerate(notes):
     print("Doing note:",i)
     for x in range(duration*sampleRate):
-        out[start*sampleRate+x] += ins(x/sampleRate,freq)*volume
+      out[start*sampleRate+x] += ins(x/sampleRate,freq)*volume
 
 print("out = ", out[0:100])
 print("Writing frames...")

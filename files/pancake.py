@@ -1,1 +1,1 @@
-PANCAKE 1
+32767;;;;;;;;;;;;Simple note;;;Instrument 0;;;Instrument 0;;qsdqsdqsd
