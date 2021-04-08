@@ -1,3 +1,6 @@
+import os
+import winsound
+
 
 class ProjectManager:
 
@@ -48,7 +51,7 @@ class ProjectManager:
 
 
     def ins_new(self):
-        name = "Instrument "+str(len(self.instruments.keys()))
+        name = "ins_"+str(len(self.instruments.keys()))
         self.instruments[name] = ""
         return name
 
@@ -59,6 +62,9 @@ class ProjectManager:
         if name == "":return
         self.instruments[name] = code
 
+    def stop_sound(self):
+        winsound.PlaySound(None, winsound.SND_PURGE)
+
     def compile(self,compileInfo):
         try:
             
@@ -67,27 +73,37 @@ class ProjectManager:
             f_ins.close()
 
             instrument_out = ""
-            for name,instrument in self.instruments.items():
-                instrument_out += c_ins.replace("{#INS_NAME#}",name).replace("{#INS_CODE#}",instrument.code.replace("\n","\n  "))
+            for name,code in self.instruments.items():
+                instrument_out += c_ins.replace("{#INS_NAME#}",name).replace("{#INS_CODE#}","  "+code.replace("\n","\n  "))
 
             f_general = open(self.template_general,"r")
             c_general = f_general.read()
             f_general.close()
 
+            print("Instrument out is",instrument_out)
+
             general_replace = {
-                "{#MAX_VOL#}":str(compileInfo["MAX_VOL"]),
-                "{#SAMPLERATE#}":str(compileInfo["SAMPLERATE"]),
-                "{#MAX_LEN#}":str(compileInfo["MAX_LEN"]),
-                "{#INS_TEMPLATE#}":self.notes,
-                "{#OUT_FILE#}":self.temp_file,
-                "{#NOTES#}":self.notes
+                "{#MAX_VOL#}":compileInfo["MAX_VOL"],
+                "{#SAMPLERATE#}":compileInfo["SAMPLERATE"],
+                "{#MAX_LEN#}":compileInfo["MAX_LEN"],
+                "{#INS_TEMPLATE#}":instrument_out,
+                "{#OUT_FILE#}":compileInfo["OUTFILE"],
+                "{#NOTES#}":compileInfo["NOTES"]
             }
 
-            for k,v in general_replace.items():c_general.replace(k,v)
+            for k,v in general_replace.items():
+                print("replacing",k,"for",v)
+                c_general = c_general.replace(k,v)
 
-            f_out = open(self.template_instrument,"w")
+
+            f_out = open(self.temp_file,"w")
             f_out.write(c_general)
             f_out.close()
+
+            print("Compilation done, running sys")
+            os.system("python \""+self.temp_file+'"')
+
+            winsound.PlaySound(compileInfo["OUTFILE"], winsound.SND_ASYNC)
 
         except FileNotFoundError:
             print("Template file missing.")

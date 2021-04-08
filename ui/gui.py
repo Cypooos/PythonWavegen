@@ -29,8 +29,12 @@ class Window(QMainWindow, Ui_MainWindow):
         self.actionDelete_Instrument.triggered.connect(self.ins_del)
         self.actioncompile.triggered.connect(self.compile)
         self.actionCompile_And_Run.triggered.connect(self.compile_run)
+        self.action_Stop.triggered.connect(self.stop_sound)
 
         self.ChooseIns.currentIndexChanged.connect(self.ins_change)
+
+    def stop_sound(self):
+        self.pm.stop_sound()
 
     def ins_change(self):
 
@@ -105,9 +109,11 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def file_new(self):
         self.active_file_path = None
-        self.instrumentMain.setText("")
-        self.notesMain.setText("")
+        self.pm.instruments = {"ins_0":"return math.sin(frequency*math.pi*2*i)"}
+        self.notesMain.setText("(880,0,10,ins_0,1)")
         self.ChooseIns.clear()
+        self.ChooseIns.addItem("ins_0")
+        self.ChooseIns.setCurrentIndex(0)
         self.reloadIns()
 
     def file_open(self):
