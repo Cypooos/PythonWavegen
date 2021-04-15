@@ -1,0 +1,1 @@
+32767;;;out.wav;;;44100;;;60;;;(880,0,10,ins_0,1);;;noise;;;noise;;return noise(freq*i)

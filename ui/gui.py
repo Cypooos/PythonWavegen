@@ -12,7 +12,8 @@ class Window(QMainWindow, Ui_MainWindow):
         super().__init__(parent)
         self.pm = pm
         print("init done")
-        self.old_ins = None
+        self.selected = None
+        self.innerReload = True
         self.setupUi(self)
         self.connectSignalsSlots()
         self.file_new()
@@ -25,52 +26,65 @@ class Window(QMainWindow, Ui_MainWindow):
         self.actionOpen.triggered.connect(self.file_open)
         self.actionNew.triggered.connect(self.file_new)
 
+        self.RenameBtn.clicked.connect(self.ins_rename)
+
         self.actionNew_instrument.triggered.connect(self.ins_new)
         self.actionDelete_Instrument.triggered.connect(self.ins_del)
         self.actioncompile.triggered.connect(self.compile)
         self.actionCompile_And_Run.triggered.connect(self.compile_run)
         self.action_Stop.triggered.connect(self.stop_sound)
 
-        self.ChooseIns.currentIndexChanged.connect(self.ins_change)
+        self.ChooseIns.currentIndexChanged.connect(self.select)
 
     def stop_sound(self):
         self.pm.stop_sound()
 
-    def ins_change(self):
+    def ins_rename(self):
+        print("Renaming")
+        new_name = self.RenameTxt.text()
+        if new_name != "" and new_name != self.pm.instruments.keys() and self.selected != None:
+            self.pm.instruments[new_name] = self.pm.instruments.pop(self.selected)
+            self.selected = new_name
+            self.reloadUI()
 
-        print(self.pm.instruments)
-        print(self.old_ins)
 
-        if self.old_ins != None:
-            self.pm.ins_update(self.old_ins,self.instrumentMain.toPlainText())
+    def select(self):
+        self.selected = self.ChooseIns.currentText()
+        self.reloadUI()
+
+    def reloadUI(self):
+        print("Reloading the UI")
+        print("ins:",self.pm.instruments)
+        print("selected:",self.selected)
         
-        self.reloadIns()
-
-    def reloadIns(self):
+        if not self.innerReload: return
+        self.innerReload = False
         
-        if self.ChooseIns.currentText() != "":
-            self.instrumentMain.setText(self.pm.instruments[self.ChooseIns.currentText()])
-            self.old_ins = self.ChooseIns.currentText()
-        else:
-            self.instrumentMain.setText("Veuillez selectionner un intrument !")
-            self.old_ins = None
-
-    def ins_new(self):
-        t = self.pm.ins_new()
-        self.ChooseIns.addItem(t)
-        self.ChooseIns.setCurrentIndex(list(self.pm.instruments.keys()).index(t))
-        self.reloadIns()
-    
-    def ins_del(self):
-        self.pm.ins_del(str(self.ChooseIns.currentText()))
         self.ChooseIns.clear()
         self.ChooseIns.addItems(list(self.pm.instruments.keys()))
-        self.ChooseIns.setCurrentIndex(0)
-        self.instrumentMain.setText("")
-        self.old_ins = None
-        self.reloadIns()
+        
+        if self.selected in self.pm.instruments.keys():
+            self.instrumentMain.setText(self.pm.instruments[self.selected])
+            self.ChooseIns.setCurrentIndex(list(self.pm.instruments.keys()).index(self.selected))
+        else:
+            self.instrumentMain.setText("Veuillez selectionner un intrument !")
+            self.ChooseIns.setCurrentIndex(-1)
+            self.selected = None
+        self.innerReload = True
 
-    def getInfo(self): # a reload too of old_ins
+    def ins_new(self):
+        print("ins_new")
+        self.selected = self.pm.ins_new()
+        self.reloadUI()
+    
+    def ins_del(self):
+        print("ins_del")
+        self.pm.ins_del(self.selected)
+        self.selected = None
+        self.reloadUI()
+
+    def getInfo(self): # a reload too of selected
+        print("getInfo")
         
         info = {}
 
@@ -82,11 +96,12 @@ class Window(QMainWindow, Ui_MainWindow):
         info["INS_CODE"] = self.instrumentMain.toPlainText()
         info["INS_NAME"] = str(self.ChooseIns.currentText())
 
-        self.old_ins = info["INS_NAME"]
+        self.selected = info["INS_NAME"]
         
         return info
     
     def reloadText(self,info):
+        print("reloadText")
         self.OutFileName.setText(info["OUTFILE"])
         self.SampleRate.setText(info["SAMPLERATE"])
         self.MaxLength.setText(info["MAX_LEN"])
@@ -94,29 +109,28 @@ class Window(QMainWindow, Ui_MainWindow):
         self.MaxVolume.setText(info["MAX_VOL"])
         self.instrumentMain.setText(info["INS_CODE"])
 
-        self.ChooseIns.clear()
-        self.ChooseIns.addItems(list(self.pm.instruments.keys()))
-        self.ChooseIns.setCurrentIndex(list(self.pm.instruments.keys()).index(info["INS_NAME"]))
-        self.reloadIns()
+        self.reloadUI()
 
     def compile_run(self):
+        print("compile_run")
         self.compile()
 
     def compile(self):
+        print("compile")
         inf = self.getInfo()
         self.pm.ins_update(inf["INS_NAME"],inf["INS_CODE"])
         self.pm.compile(inf)
 
     def file_new(self):
+        print("file_new")
         self.active_file_path = None
         self.pm.instruments = {"ins_0":"return math.sin(frequency*math.pi*2*i)"}
+        self.selected = "ins_0"
         self.notesMain.setText("(880,0,10,ins_0,1)")
-        self.ChooseIns.clear()
-        self.ChooseIns.addItem("ins_0")
-        self.ChooseIns.setCurrentIndex(0)
-        self.reloadIns()
+        self.reloadUI()
 
     def file_open(self):
+        print("file_open")
         
         file = QFileDialog.getOpenFileName(caption="Choose the file to open", filter="Python Files (*.py);;All Files (*)")
         
@@ -129,12 +143,12 @@ class Window(QMainWindow, Ui_MainWindow):
             print("Error:",e);return
 
         self.active_file_path = file
-        self.reloadIns()
+        self.reloadUI()
 
     def file_saveas(self):
         self.active_file_path = QFileDialog.getSaveFileName(caption="Save as", filter="Python Files (*.py);;All Files (*)")[0]
         self.file_save()
-        self.reloadIns()
+        self.reloadUI()
 
     def file_save(self):
         if self.active_file_path == None:
